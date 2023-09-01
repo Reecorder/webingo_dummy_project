@@ -9,24 +9,28 @@ class ApiController extends GetxController {
   var isLoading = false.obs;
   var count = 0.obs;
 
-  void fetchSearchResults(String search) async {
+  Future fetchSearchResults(String search) async {
     // final query = search.trim();
     isLoading.value = true;
-    final response = await http.get(
-      Uri.parse('http://universities.hipolabs.com/search?country=$search'),
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('http://universities.hipolabs.com/search?country=$search'),
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      count.value = 1;
-      if (data != null || data.isNotEmpty) {
-        searchResults.assignAll(data);
-        isLoading.value = false;
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        count.value = 1;
+        if (data != null || data.isNotEmpty) {
+          searchResults.assignAll(data);
+          isLoading.value = false;
+        } else {
+          searchResults.clear();
+        }
       } else {
         searchResults.clear();
       }
-    } else {
-      searchResults.clear();
+    } finally {
+      isLoading.value = false;
     }
   }
 }
